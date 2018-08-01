@@ -440,10 +440,7 @@ float FloatSwap( const float *f );
 #endif
 #if defined(__ANDROID__)
 	#define OS_STRING "android"
-#if !defined(ANDROID_ARCH)
-	#error "Android architecture undefined"
-#endif
-	#define ARCH_STRING ANDROID_ARCH
+	#define ARCH_STRING "arm"
 	#define ID_INLIDE inline
 	#undef Q_RESTRICT
 	#define Q_RESTRICT __restrict__

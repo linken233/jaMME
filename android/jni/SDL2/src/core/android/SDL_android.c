@@ -626,7 +626,7 @@ static int Internal_Android_JNI_FileOpen(SDL_RWops* ctx)
     struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
 
     LOGI("Internal_Android_JNI_FileOpen");
-    return 0;
+    return;
 
     int result = 0;
 
