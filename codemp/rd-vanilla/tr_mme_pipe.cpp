@@ -14,12 +14,7 @@ static qboolean pipeOpen(mmePipeFile_t *pipeFile, const char *name, mmeShotType_
     char	outBuf[512];
     int		outIndex = 0;
     int		outLeft = sizeof(outBuf) - 1;
-	char	*mod = ri.Cvar_VariableString("fs_game");
     
-	if (!Q_stricmp(mod, "")) {
-		mod = "base";
-	}
-
     format = mme_pipeCommand->string;
     if (!format || !format[0]) {
         format = "ffmpeg -r %f -f rawvideo -pix_fmt rgb24 -s %wx%h -i - -threads 0 -preset fast -y -pix_fmt yuv420p -crf 17 -vf vflip %o.mp4 2> ffmpeglog.txt";
@@ -34,16 +29,16 @@ static qboolean pipeOpen(mmePipeFile_t *pipeFile, const char *name, mmeShotType_
                     Com_sprintf( outBuf + outIndex, outLeft, "%.3f", fps);
                     outIndex += strlen( outBuf + outIndex );
                     break;
-                case 'w':		//width
+                case 'w':		//map
                     Com_sprintf( outBuf + outIndex, outLeft, "%d", width);
                     outIndex += strlen( outBuf + outIndex );
                     break;
-                case 'h':		//height
+                case 'h':		//map
                     Com_sprintf( outBuf + outIndex, outLeft, "%d", height);
                     outIndex += strlen( outBuf + outIndex );
                     break;
-                case 'o':		//output
-                    Com_sprintf( outBuf + outIndex, outLeft, "%s\\%s", mod, name);
+                case 'o':		//map
+                    Com_sprintf( outBuf + outIndex, outLeft, name);
                     outIndex += strlen( outBuf + outIndex );
                     break;
                 case '%':
