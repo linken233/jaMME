@@ -152,9 +152,6 @@ float FloatSwap( const float *f );
 	#undef QCALL
 	#define QCALL __stdcall
 
-	#undef Q_RESTRICT
-	#define Q_RESTRICT __restrict
-
 	#if defined(_MSC_VER)
 		#define OS_STRING "win_msvc64"
 	#elif defined(__MINGW64__)
@@ -183,9 +180,6 @@ float FloatSwap( const float *f );
 
 	#undef QCALL
 	#define QCALL __stdcall
-
-	#undef Q_RESTRICT
-	#define Q_RESTRICT __restrict
 
 	#if defined(_MSC_VER)
 		#define OS_STRING "win_msvc"
@@ -224,9 +218,6 @@ float FloatSwap( const float *f );
 	#define __declspec(x)
 	#define stricmp strcasecmp
 	#define ID_INLINE /*inline*/ 
-
-	#undef Q_RESTRICT
-	#define Q_RESTRICT __restrict__
 
     #define OS_STRING "MacOSX"
 
@@ -297,9 +288,6 @@ float FloatSwap( const float *f );
 
 	#include <MacTypes.h>
 	#define ID_INLINE inline 
-	
-	#undef Q_RESTRICT
-	#define Q_RESTRICT __restrict__
 
 	#define	CPUSTRING "MacOS-PPC"
 
@@ -334,9 +322,6 @@ float FloatSwap( const float *f );
 	#define stricmp strcasecmp
 
 	#define ID_INLINE /*inline*/
-	
-	#undef Q_RESTRICT
-	#define Q_RESTRICT __restrict__
 
 	#define	PATH_SEP '/'
 	#define RAND_MAX 2147483647
@@ -417,9 +402,6 @@ float FloatSwap( const float *f );
 	#define QINLINE inline
 	#define PATH_SEP '/'
 	
-	#undef Q_RESTRICT
-	#define Q_RESTRICT __restrict__
-
 	#if defined(__i386__)
 		#define ARCH_STRING "i386"
 	#elif defined(__amd64__)
@@ -442,8 +424,6 @@ float FloatSwap( const float *f );
 	#define OS_STRING "android"
 	#define ARCH_STRING "arm"
 	#define ID_INLIDE inline
-	#undef Q_RESTRICT
-	#define Q_RESTRICT __restrict__
 	#define PATH_SEP '/'
 #if defined(Q3_BIG_ENDIAN)
 	#undef Q3_BIG_ENDIAN

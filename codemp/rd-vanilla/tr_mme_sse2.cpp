@@ -3,10 +3,12 @@
 #include "tr_local.h"
 #include "tr_mme.h"
 
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
+#if defined (X86_OR_64)
 #include <emmintrin.h>
+#endif
 
-void MME_AccumClearSSE( void* Q_RESTRICT w, const void* Q_RESTRICT r, short int mul, int count ) {
+void MME_AccumClearSSE( void *w, const void *r, short int mul, int count ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	const __m128i * reader = (const __m128i *) r;
 	__m128i *writer = (__m128i *) w;
 	int i; 
@@ -32,10 +34,12 @@ void MME_AccumClearSSE( void* Q_RESTRICT w, const void* Q_RESTRICT r, short int 
 		 writer[3] = _mm_unpackhi_epi16( workLo, workHi );
 		 writer += 4;
 	 }
+#endif
 }
 
 
-void MME_AccumAddSSE( void* Q_RESTRICT w, const void* Q_RESTRICT r, short int mul, int count ) {
+void MME_AccumAddSSE( void* w, const void* r, short int mul, int count ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	int i;
 	const __m128i * reader = (const __m128i *) r;
 	__m128i *writer = (__m128i *) w;
@@ -65,11 +69,13 @@ void MME_AccumAddSSE( void* Q_RESTRICT w, const void* Q_RESTRICT r, short int mu
 		 writer[3] = _mm_add_epi32( writer[3], _mm_unpackhi_epi16( workLo, workHi ) );
 		 writer += 4;
 	 }
+#endif
 }
 
 
 
 void MME_AccumShiftSSE( const void *r, void *w, int count ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	const __m128i * reader = (const __m128i *) r;
 	__m128i *writer = (__m128i *) w;
 	int i;
@@ -89,5 +95,5 @@ void MME_AccumShiftSSE( const void *r, void *w, int count ) {
 		writer[1] = _mm_packus_epi16( work2, work3 );
 		writer += 2;
 	}
-}
 #endif
+}

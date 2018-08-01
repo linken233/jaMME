@@ -184,7 +184,11 @@ void R_MME_SaveShot( mmeShot_t *shot, int width, int height, float fps, byte *in
 ID_INLINE byte * R_MME_BlurOverlapBuf(mmeBlurBlock_t *block) {
 	mmeBlurControl_t* control = block->control;
 	int index = control->overlapIndex % control->overlapFrames;
-	return (byte *)((int64_t *)block->overlap + block->count * index);
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
+	return (byte *)(block->overlap + block->count * index);
+#else
+	return ((byte *)block->overlap + block->count * index);
+#endif
 }
 
 void blurCreate( mmeBlurControl_t* control, const char* type, int frames ) {
@@ -295,37 +299,8 @@ void blurCreate( mmeBlurControl_t* control, const char* type, int frames ) {
 #endif
 }
 
-static void MME_AccumClear( void * Q_RESTRICT w, const void * Q_RESTRICT r, short mul, int count ) {
-	const byte (*reader)[8] = (const byte(*)[8])r;
-	int32_t (*writer)[8] = (int32_t(*)[8])w;
-	int32_t intmul = mul;
-
-	for ( int i = 0; i < count; i++ )
-		for ( int j = 0; j < 8; j++ )
-			writer[i][j] = intmul * reader[i][j];
-}
-
-static void MME_AccumAdd( void * Q_RESTRICT w, const void * Q_RESTRICT r, short mul, int count ) {
-	const byte (*reader)[8] = (const byte(*)[8])r;
-	int32_t (*writer)[8] = (int32_t(*)[8])w;
-	int32_t intmul = mul;
-
-	for ( int i = 0; i < count; i++ )
-		for ( int j = 0; j < 8; j++ )
-			writer[i][j] += intmul * reader[i][j];
-}
-
-static void MME_AccumShift( void* r, void *w, int count ) {
-	const int32_t (*reader)[8] = (const int32_t(*)[8])r;
-	byte (*writer)[8] = (byte(*)[8])w;
-
-	for ( int i = 0; i < count; i++ )
-		for ( int j = 0; j < 8; j++ )
-			writer[i][j] = reader[i][j] >> 15;
-}
-
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 static void MME_AccumClearMMX( void* w, const void* r, short mul, int count ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	const __m64 * reader = (const __m64 *) r;
 	__m64 *writer = (__m64 *) w;
 	int i; 
@@ -343,9 +318,11 @@ static void MME_AccumClearMMX( void* w, const void* r, short mul, int count ) {
 		 writer += 2;
 	 }
 	 _mm_empty();
+#endif
 }
 
 static void MME_AccumAddMMX( void *w, const void* r, short mul, int count ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	const __m64 * reader = (const __m64 *) r;
 	__m64 *writer = (__m64 *) w;
 	int i;
@@ -362,10 +339,12 @@ static void MME_AccumAddMMX( void *w, const void* r, short mul, int count ) {
 		 writer += 2;
 	 }
 	 _mm_empty();
+#endif
 }
 
 
 static void MME_AccumShiftMMX( const void  *r, void *w, int count ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	const __m64 * reader = (const __m64 *) r;
 	__m64 *writer = (__m64 *) w;
 
@@ -383,13 +362,18 @@ static void MME_AccumShiftMMX( const void  *r, void *w, int count ) {
 		writer += 2;
 	}
 	_mm_empty();
-}
 #endif
+}
 
-void R_MME_BlurAccumAdd( mmeBlurBlock_t *block, const void *add) {
+void R_MME_BlurAccumAdd( mmeBlurBlock_t *block,
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
+	const __m64 *add
+#else
+	const void *add
+#endif
+) {
 	mmeBlurControl_t* control = block->control;
 	int index = control->totalIndex;
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	if ( mme_cpuSSE2->integer ) {
 		if ( index == 0) {
 			MME_AccumClearSSE( block->accum, add, control->SSE[ index ], block->count );
@@ -403,31 +387,24 @@ void R_MME_BlurAccumAdd( mmeBlurBlock_t *block, const void *add) {
 			MME_AccumAddMMX( block->accum, add, control->MMX[ index ], block->count );
 		}
 	}
-#else
-	if ( index == 0) {
-		MME_AccumClear( block->accum, add, control->SSE[ index ], block->count );
-	} else {
-		MME_AccumAdd( block->accum, add, control->SSE[ index ], block->count );
-	}
-#endif
 }
 
 void R_MME_BlurOverlapAdd( mmeBlurBlock_t *block, int index ) {
 	mmeBlurControl_t* control = block->control;
 	index = ( index + control->overlapIndex ) % control->overlapFrames;
-	R_MME_BlurAccumAdd( block, (int64_t *)block->overlap + block->count * index );
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
+	R_MME_BlurAccumAdd( block, block->overlap + block->count * index );
+#else
+	R_MME_BlurAccumAdd(block, (byte *)block->overlap + block->count * index);
+#endif
 }
 
 void R_MME_BlurAccumShift( mmeBlurBlock_t *block  ) {
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	if ( mme_cpuSSE2->integer ) {
 		MME_AccumShiftSSE( block->accum, block->accum, block->count );
 	} else {
 		MME_AccumShiftMMX( block->accum, block->accum, block->count );
 	}
-#else
-	MME_AccumShift( block->accum, block->accum, block->count );
-#endif
 }
 
 //Replace rad with _rad gogo includes
