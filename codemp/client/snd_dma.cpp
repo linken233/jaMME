@@ -68,21 +68,16 @@ void S_DMAInit(void) {
 }
 
 void S_DMA_Update( float scale ) {
-	int				sane, count;
-	float			ma, op;
+	int				ma, count;
 	static int		lastPos;
 	int				thisPos;
 	int				lastWrite, lastRead;
 	int				bufSize, bufDone;
 	int				speed;
 	int				buf[2048];
-	int				thisTime;
-	static int		lastTime = 0;
 
 	if (!dmaInit)
 		return;
-
-	thisTime = Com_Milliseconds();
 
 	bufSize = dma.samples >> (dma.channels-1);
 
@@ -100,16 +95,8 @@ void S_DMA_Update( float scale ) {
 	}
 //	Com_Printf( "lastRead %d lastWrite %d done %d\n", lastRead, lastWrite, bufDone );
 	lastPos = thisPos;
-	
-	sane = thisTime - lastTime;
-	if (sane<11) {
-		sane = 11;			// 85hz
-	}
+
 	ma = s_mixahead->value * dma.speed;
-	op = 0.05f + sane*dma.speed*0.01f;
-	if (op < ma) {
-		ma = op;
-	}
 
 	count = lastRead;
 	if (bufDone + count < ma) {
@@ -151,5 +138,4 @@ void S_DMA_Update( float scale ) {
 	dmaWrite += count;
 	if (dmaWrite >= bufSize)
 		dmaWrite -= bufSize;
-	lastTime = thisTime;
 }
