@@ -423,5 +423,4 @@ typedef enum {
 	mmeShotTypeRGB,
 	mmeShotTypeRGBA,
 	mmeShotTypeGray,
-	mmeShotTypeBGR,
 } mmeShotType_t;
