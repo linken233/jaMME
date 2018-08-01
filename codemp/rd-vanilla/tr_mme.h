@@ -10,13 +10,6 @@
 
 #define BLURMAX 256
 
-typedef struct mmePipeFile_s {
-    char name[MAX_OSPATH];
-    fileHandle_t f;
-    float fps;
-    mmeShotType_t type;
-} mmePipeFile_t;
-
 typedef struct mmeAviFile_s {
 	char name[MAX_OSPATH];
 	fileHandle_t f;
@@ -38,8 +31,7 @@ typedef struct {
 	int	 counter;
 	mmeShotFormat_t format;
 	mmeShotType_t type;
-    mmeAviFile_t avi;
-    mmePipeFile_t pipe;
+	mmeAviFile_t avi;
 } mmeShot_t;
 
 typedef struct {
@@ -70,9 +62,6 @@ void mmeAviShot( mmeAviFile_t *aviFile, const char *name, mmeShotType_t type, in
 void mmeAviSound( mmeAviFile_t *aviFile, const char *name, mmeShotType_t type, int width, int height, float fps, const byte *soundBuf, int size );
 void aviClose( mmeAviFile_t *aviFile );
 
-void mmePipeShot(mmePipeFile_t *pipeFile, const char *name, mmeShotType_t type, int width, int height, float fps, byte *inBuf);
-void pipeClose(mmePipeFile_t *pipeFile);
-
 void MME_AccumClearSSE( void *w, const void *r, short int mul, int count );
 void MME_AccumAddSSE( void* w, const void* r, short int mul, int count );
 void MME_AccumShiftSSE( const void *r, void *w, int count );
@@ -85,8 +74,6 @@ void R_MME_JitterTable(float *jitarr, int num);
 
 float R_MME_FocusScale(float focus);
 void R_MME_ClampDof(float *focus, float *radius);
-
-extern cvar_t	*mme_pipeCommand;
 
 extern cvar_t	*mme_aviFormat;
 extern cvar_t	*mme_aviLimit;

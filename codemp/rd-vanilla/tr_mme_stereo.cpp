@@ -424,9 +424,7 @@ const void *R_MME_CaptureShotCmdStereo( const void *data ) {
 		} else if (!Q_stricmp(mme_screenShotFormat->string, "png")) {
 			shotData.main.format = mmeShotFormatPNG;
 		} else if (!Q_stricmp(mme_screenShotFormat->string, "avi")) {
-            shotData.main.format = mmeShotFormatAVI;
-        } else if (!Q_stricmp(mme_screenShotFormat->string, "pipe")) {
-            shotData.main.format = mmeShotFormatPIPE;
+			shotData.main.format = mmeShotFormatAVI;
 		} else {
 			shotData.main.format = mmeShotFormatTGA;
 		}
