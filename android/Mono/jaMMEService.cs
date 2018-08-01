@@ -6,7 +6,7 @@ using Android.Content;
 using Android.OS;
 
 namespace android {
-	[Service(Name = "com.jamme.jaMMEService", Enabled = true)]
+	[Service]
 	[IntentFilter(new string[] { "com.jamme.jaMMEService" })]
 	public class jaMMEService : Service {
 		public override IBinder OnBind(Intent intent) {
