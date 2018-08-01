@@ -35,7 +35,6 @@ This is just for OpenGL conformance testing, it should never be the fastest
 ================
 */
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
-#ifndef HAVE_GLES
 	qglColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
 		qglMultiTexCoord2fARB( 0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1] );
@@ -44,7 +43,6 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 		qglTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
 	}
 	qglVertex3fv( tess.xyz[ index ] );
-#endif
 }
 
 /*
@@ -53,7 +51,6 @@ R_DrawStripElements
 
 ===================
 */
-#ifndef HAVE_GLES
 static int		c_vertexes;		// for seeing how long our average strips are
 static int		c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
@@ -148,7 +145,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 
 	qglEnd();
 }
-#endif
+
 
 
 /*
@@ -183,30 +180,6 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 		return;
 	}
 
-#if defined(HAVE_GLES)
-	if (primitives == 1 || primitives == 3)
-	{
-		//		if (tess.useConstantColor)
-		//		{
-		//			qglDisableClientState( GL_COLOR_ARRAY );
-		//			qglColor4ubv( tess.constantColor );
-		//		}
-		/*qglDrawElements( GL_TRIANGLES,
-		numIndexes,
-		GL_INDEX_TYPE,
-		indexes );*/
-#if 1	// VVFIXME : Temporary solution to try and increase framerate
-		//qglIndexedTriToStrip( numIndexes, indexes );
-
-		qglDrawElements(GL_TRIANGLES,
-			numIndexes,
-			GL_INDEX_TYPE,
-			indexes);
-#endif
-
-		return;
-	}
-#else // HAVE_GLES
 	if ( primitives == 1 ) {
 		R_DrawStripElements( numIndexes,  indexes, qglArrayElement );
 		return;
@@ -216,7 +189,6 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 		R_DrawStripElements( numIndexes,  indexes, R_ArrayElementDiscrete );
 		return;
 	}
-#endif // HAVE_GLES
 
 	// anything else will cause no drawing
 }
@@ -346,9 +318,6 @@ static void DrawNormals (shaderCommands_t *input) {
 	qglDepthRange( 0, 0 );	// never occluded
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
-#ifdef HAVE_GLES
-	/*SEB *TODO* */
-#else
 	qglBegin (GL_LINES);
 	for (i = 0 ; i < input->numVertexes ; i++) {
 		qglVertex3fv (input->xyz[i]);
@@ -356,7 +325,6 @@ static void DrawNormals (shaderCommands_t *input) {
 		qglVertex3fv (temp);
 	}
 	qglEnd ();
-#endif
 
 	qglDepthRange( 0, 1 );
 }
@@ -409,13 +377,11 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 	GL_State( pStage->stateBits );
 
-#ifndef HAVE_GLES
 	// this is an ugly hack to work around a GeForce driver
 	// bug with multitexture and clip planes
 	if ( backEnd.viewParms.isPortal ) {
 		qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	}
-#endif
 
 	//
 	// base

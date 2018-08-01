@@ -249,7 +249,11 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 							int deathID, int impactID,
 							int killTime, qhandle_t shader, int flags, 
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+							CGhoul2Info_v *ghoul2/*0*/,
+#else
 							int iGhoul2/*0*/,
+#endif
 							int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 0 )
@@ -261,12 +265,21 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			fx->SetOrigin1( NULL );
+			fx->SetOrgOffset( org );
+			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			fx->SetOrigin1( NULL );
 			fx->SetOrgOffset( org );
 			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		else
 		{
 			fx->SetOrigin1( org );
@@ -345,7 +358,11 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 									vec3_t sRGB, vec3_t eRGB, float rgbParm,
 									int killTime, qhandle_t shader, int flags, 
 									EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+								CGhoul2Info_v *ghoul2/*0*/,
+#else
 								int iGhoul2/*0*/,
+#endif
 								int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 0 )
@@ -357,6 +374,15 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			fx->SetOrigin1( NULL );
+			fx->SetOrgOffset( start ); //offset from bolt pos
+			fx->SetVel( end );	//vel is the vector offset from bolt+orgOffset
+			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			fx->SetOrigin1( NULL );
@@ -364,6 +390,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 			fx->SetVel( end );	//vel is the vector offset from bolt+orgOffset
 			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		else
 		{
 			fx->SetOrigin1( start );
@@ -432,7 +459,11 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 								vec3_t sRGB, vec3_t eRGB, float rgbParm,
 								float chaos, int killTime, qhandle_t shader, int flags, 
 								EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+								CGhoul2Info_v *ghoul2/*0*/,
+#else
 								int iGhoul2/*0*/,
+#endif
 								int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 0 )
@@ -444,6 +475,15 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			fx->SetOrigin1( NULL );
+			fx->SetOrgOffset( start ); //offset from bolt pos
+			fx->SetVel( end );	//vel is the vector offset from bolt+orgOffset
+			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			fx->SetOrigin1( NULL );
@@ -451,6 +491,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 			fx->SetVel( end );	//vel is the vector offset from bolt+orgOffset
 			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		else
 		{
 			fx->SetOrigin1( start );
@@ -529,7 +570,11 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 							int deathID, int impactID,
 							int killTime, qhandle_t shader, int flags, 
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+							CGhoul2Info_v *ghoul2/*0*/,
+#else
 							int iGhoul2/*0*/,
+#endif
 							int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 0 )
@@ -541,12 +586,21 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			fx->SetOrigin1( NULL );
+			fx->SetOrgOffset( org );
+			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			fx->SetOrigin1( NULL );
 			fx->SetOrgOffset( org );
 			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		else
 		{
 			fx->SetOrigin1( org );
@@ -636,7 +690,11 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							int killTime, qhandle_t shader, int flags, 
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+							CGhoul2Info_v *ghoul2/*0*/,
+#else
 							int iGhoul2/*0*/,
+#endif
 							int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/,
 							qboolean traceEnd)
 {
@@ -649,12 +707,21 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			fx->SetOrigin1( NULL );
+			fx->SetOrgOffset( start );//offset
+			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			fx->SetOrigin1( NULL );
 			fx->SetOrgOffset( start );//offset
 			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		else
 		{
 			fx->SetOrigin1( start );
@@ -754,7 +821,11 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 								float density, float variance,
 								int killTime, qhandle_t model, int flags, 
 								EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+								CGhoul2Info_v *ghoul2/*0*/,
+#else
 								int iGhoul2/*0*/,
+#endif
 								int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 0 )
@@ -766,11 +837,19 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			assert(0);//not done
+//			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			assert(0);//not done
 //			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		fx->SetMatImpactFX(matImpactFX);
 		fx->SetMatImpactParm(fxParm);
 		fx->SetOrigin1( org );
@@ -847,7 +926,11 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							int killTime, int flags, 
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+							CGhoul2Info_v *ghoul2/*0*/,
+#else
 							int iGhoul2/*0*/,
+#endif
 							int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 0 )
@@ -859,12 +942,21 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			fx->SetOrigin1( NULL );
+			fx->SetOrgOffset( org );//offset
+			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			fx->SetOrigin1( NULL );
 			fx->SetOrgOffset( org );//offset
 			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		else
 		{
 			fx->SetOrigin1( org );
@@ -921,7 +1013,11 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 						int deathID, int impactID,
 						int killTime, qhandle_t shader, int flags, 
 						EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+#ifdef __ANDROID__
+						CGhoul2Info_v *ghoul2/*0*/,
+#else
 						int iGhoul2/*0*/,
+#endif
 						int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 0 )
@@ -933,12 +1029,21 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 
 	if ( fx )
 	{
+#ifdef __ANDROID__
+		if (flags&FX_RELATIVE && ghoul2 != NULL)
+		{
+			fx->SetOrigin1( NULL );
+			fx->SetOrgOffset( org );//offset
+			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
+		}
+#else
 		if (flags&FX_RELATIVE && iGhoul2>0)
 		{
 			fx->SetOrigin1( NULL );
 			fx->SetOrgOffset( org );//offset
 			fx->SetBoltinfo( iGhoul2, entNum, modelNum, boltNum );
 		}
+#endif
 		else
 		{
 			fx->SetOrigin1( org );

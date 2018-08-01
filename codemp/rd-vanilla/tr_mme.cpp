@@ -74,7 +74,6 @@ cvar_t	*mme_aviLimit;
 cvar_t  *mme_pipeCommand;
 
 static void R_MME_MakeBlurBlock( mmeBlurBlock_t *block, int size, mmeBlurControl_t* control ) {
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	memset( block, 0, sizeof( *block ) );
 	size = (size + 15) & ~15;
 	block->count = size / sizeof ( __m64 );
@@ -95,7 +94,6 @@ static void R_MME_MakeBlurBlock( mmeBlurBlock_t *block, int size, mmeBlurControl
 			ri.Error( ERR_FATAL, "Failed to allocate %d bytes from the mme_workMegs buffer\n", workUsed );
 		}
 	}
-#endif
 }
 
 static void R_MME_CheckCvars( void ) {
@@ -105,44 +103,23 @@ static void R_MME_CheckCvars( void ) {
 
 	pixelCount = glConfig.vidHeight * glConfig.vidWidth;
 
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	if (mme_blurFrames->integer > BLURMAX) {
 		ri.Cvar_Set( "mme_blurFrames", va( "%d", BLURMAX) );
 	} else if (mme_blurFrames->integer < 0) {
 		ri.Cvar_Set( "mme_blurFrames", "0" );
 	}
-#else
-	if (mme_blurFrames->integer > 0) {
-		Com_Printf(S_COLOR_YELLOW "Blur frames are not supported on this CPU\n");
-		ri.Cvar_Set("mme_blurFrames", "0");
-	}
-#endif
 
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	if (mme_blurOverlap->integer > BLURMAX ) {
 		ri.Cvar_Set( "mme_blurOverlap", va( "%d", BLURMAX) );
 	} else if (mme_blurOverlap->integer < 0 ) {
 		ri.Cvar_Set( "mme_blurOverlap", "0");
 	}
-#else
-	if (mme_blurOverlap->integer > 0) {
-		Com_Printf(S_COLOR_YELLOW "Blur overlap is not supported on this CPU\n");
-		ri.Cvar_Set("mme_blurOverlap", "0");
-	}
-#endif
 	
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
-if (mme_dofFrames->integer > BLURMAX ) {
+	if (mme_dofFrames->integer > BLURMAX ) {
 		ri.Cvar_Set( "mme_dofFrames", va( "%d", BLURMAX) );
 	} else if (mme_dofFrames->integer < 0 ) {
 		ri.Cvar_Set( "mme_dofFrames", "0");
 	}
-#else
-	if (mme_dofFrames->integer > 0) {
-		Com_Printf(S_COLOR_YELLOW "Dof frames are not supported on this CPU\n");
-		ri.Cvar_Set("mme_dofFrames", "0");
-	}
-#endif
 
 	blurTotal = mme_blurFrames->integer + mme_blurOverlap->integer ;
 	passTotal = mme_dofFrames->integer;
@@ -234,7 +211,6 @@ void R_MME_JitterView( float *pixels, float *eyes ) {
 }
 
 int R_MME_MultiPassNext( ) {
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	mmeBlurControl_t* control = &passData.control;
 	byte* outAlloc;
 	__m64 *outAlign;
@@ -266,10 +242,6 @@ int R_MME_MultiPassNext( ) {
 	control->totalIndex = 0;
 	R_MME_BlurAccumShift( &passData.dof );
 	return 0;
-#else
-	shotData.take = qfalse;
-	return 0;
-#endif
 }
 
 static void R_MME_MultiShot( byte * target ) {
@@ -334,7 +306,6 @@ qboolean R_MME_TakeShot( void ) {
 //		mmeBlurBlock_t *blurStencil = &blurData.stencil;
 
 		/* Test if we blur with overlapping frames */
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
 		if ( blurControl->overlapFrames ) {
 			/* First frame in a sequence, fill the buffer with the last frames */
 			if (blurControl->totalIndex == 0) {
@@ -396,7 +367,6 @@ qboolean R_MME_TakeShot( void ) {
 			ri.Hunk_FreeTempMemory( outAlloc );
 			blurControl->totalIndex++;
 		}
-#endif
 
 		if ( blurControl->totalIndex >= blurControl->totalFrames ) {
 			float fps;

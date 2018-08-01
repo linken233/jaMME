@@ -1186,9 +1186,6 @@ const void *R_DrawWireframeAutomap(const void *data)
 	qglColor4f(0.0f, 0.0f, 0.0f, alpha);
 
 	//draw a black backdrop
-#ifdef HAVE_GLES
-	//TODO MAP
-#else
 	qglPushMatrix();
 	qglLoadIdentity(); //get the ident matrix
 
@@ -1201,7 +1198,7 @@ const void *R_DrawWireframeAutomap(const void *data)
 
 	//pop back the viewmatrix
 	qglPopMatrix();
-#endif
+
 
 	//set the mode to line draw
 	if (r_autoMap->integer == 2)
@@ -1300,9 +1297,6 @@ const void *R_DrawWireframeAutomap(const void *data)
 		}
 
 		i = 0;
-#ifdef HAVE_GLES
-		//TODO
-#else
 		qglBegin(GL_TRIANGLES);
 		while (i < s->numPoints)
 		{
@@ -1337,7 +1331,6 @@ const void *R_DrawWireframeAutomap(const void *data)
 			i++;
 		}
 		qglEnd();
-#endif
 		s = s->next;
 	}
 #else

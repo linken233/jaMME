@@ -1407,7 +1407,7 @@ extern void R_InvertMatrix(float *sourcemat, float *destmat);
 
 void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input) 
 {
-	uint32_t	glbits=stage->stateBits;
+	unsigned long	glbits=stage->stateBits;
 	
 	R_SurfaceSpriteFrameUpdate();
 
