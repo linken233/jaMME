@@ -1,7 +1,6 @@
 #pragma once
 
 //All mixing speeds have this as 1.0
-#define		MIX_SIZE		4096
 #define		MIX_SPEED		44100//22050
 #define		MIX_SHIFT		8
 
