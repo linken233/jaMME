@@ -23,15 +23,7 @@ LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/android 
 
 LOCAL_CFLAGS := \
-    -DHAVE_CONFIG_H
-
-# we want more accurate FPM logic
-ifeq ($(TARGET_ARCH_ABI),x86)
-    LOCAL_CFLAGS := $(LOCAL_CFLAGS) -DFPM_INTEL
-else ifeq ($(TARGET_ARCH_ABI),x86_64)
-    LOCAL_CFLAGS := $(LOCAL_CFLAGS) -DFPM_64BIT
-else
-    LOCAL_CFLAGS := $(LOCAL_CFLAGS) -DFPM_DEFAULT
-endif
+    -DHAVE_CONFIG_H \
+    -DFPM_DEFAULT
 
 include $(BUILD_STATIC_LIBRARY)
