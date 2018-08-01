@@ -227,9 +227,6 @@ void aviClose( mmeAviFile_t *aviFile ) {
     if (aviFile->pipe) {
         if (aviFile->f) {
             ri.FS_PipeClose(aviFile->f);
-			Com_Memset( aviFile, 0, sizeof( *aviFile ));
-			/* validation failed, but need to save pipe if it's set */
-			aviFile->pipe = qtrue;
         }
     } else {
         aviFillHeader(aviFile, qtrue);
