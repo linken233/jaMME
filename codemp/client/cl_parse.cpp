@@ -458,7 +458,11 @@ void CL_SystemInfoChanged( void ) {
 					Q_stricmp( key, "pmove_float" ) &&
 					Q_stricmp( key, "sex" ) )
 				{
+<<<<<<< HEAD
 					Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+=======
+					//Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+>>>>>>> parent of 2339be9... Changed cvar forcing warning to debug printf
 					continue;
 				}
 			}
