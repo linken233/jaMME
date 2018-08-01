@@ -87,7 +87,8 @@ typedef enum {
 	GT_CTF,				// capture the flag
 	GT_CTY,
 	GT_MAX_GAME_TYPE
-} gametype_t;
+};
+typedef int gametype_t;
 
 typedef struct levelitem_s
 {
