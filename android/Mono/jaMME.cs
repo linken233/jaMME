@@ -1363,9 +1363,9 @@ namespace android {
 			if (ev != null)
 				uc = ev.UnicodeChar;
 			if (ev.Action == KeyEventActions.Down) {
-				jaMME.keypress(1, MobileKeycodes.GetMobileKey(keyCode, uc), uc);
+				jaMME.keypress(1, MobileKeycodes.GetMobileKey(keyCode, uc), 0);
 			} else if (ev.Action == KeyEventActions.Up) {
-				jaMME.keypress(0, MobileKeycodes.GetMobileKey(keyCode, uc), uc);
+				jaMME.keypress(0, MobileKeycodes.GetMobileKey(keyCode, uc), 0);
 			}
 			return true;
 		}
