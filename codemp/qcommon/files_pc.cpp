@@ -3742,8 +3742,7 @@ bool FS_LoadMachOBundle( const char *name )
 fileHandle_t FS_PipeOpen(const char *qcmd, const char *qpath, const char *mode) {
     char			*ospath;
     fileHandle_t	f;
-    char            temp[2048];
-    char            cmd[2048];
+    char            *cmd;
     
     if (!fs_searchpaths) {
         Com_Error(ERR_FATAL, "Filesystem call made without initialization\n");
@@ -3761,10 +3760,7 @@ fileHandle_t FS_PipeOpen(const char *qcmd, const char *qpath, const char *mode) 
     if(FS_CreatePath(ospath)) {
         return 0;
     }
-    
-    Com_sprintf(temp, sizeof(temp), "/%s", qcmd);
-    FS_ReplaceSeparators(temp);
-    Com_sprintf(cmd, sizeof(cmd), "%s%s", fs_homepath->string, temp);
+    cmd = FS_BuildOSPath(fs_homepath->string, fs_gamedir, qcmd);
     if (fs_debug->integer) {
         Com_Printf("FS_PipeOpen cmd: %s\n", cmd);
     }
