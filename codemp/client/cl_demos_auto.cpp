@@ -19,15 +19,10 @@ char *demoAutoFormat(const char* name) {
 	int t = 0;
 	char timeStamps[MAX_QPATH] = "";
 	qtime_t ct;
-	struct tm tt;
 
-	char playerName[MAX_QPATH], serverName[MAX_QPATH], mapName[MAX_QPATH];
-	Q_strncpyz(playerName, COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n")), sizeof(playerName));
-	Q_strncpyz(serverName, COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "sv_hostname")), sizeof(serverName));
-	Q_strncpyz(mapName, COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "mapname")), sizeof(mapName));
+	char playerName[MAX_QPATH], *mapName = COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "mapname"));
+	Q_strncpyz(playerName, Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n"), sizeof(playerName));
 	Q_StripColor(playerName, cls.uag.newColors);
-	Q_StripColor(serverName, cls.uag.newColors);
-	Q_StripColor(mapName, cls.uag.newColors);
 	Com_RealTime(&ct);
 	
 	format = cl_autoDemoFormat->string;
@@ -44,6 +39,7 @@ char *demoAutoFormat(const char* name) {
 			char ch = *format++;
 			haveTag = qfalse;
 			switch (ch) {
+<<<<<<< HEAD
 			// let strftime handle its tokens, and ignore those with illegal characters
 			case 'a':   case 'A':   case 'b':   case 'B': /*case 'c':*/ case 'd':
 			case 'H':   case 'I':   case 'm':   case 'M':   case 'p':   case 'S':
@@ -57,6 +53,9 @@ char *demoAutoFormat(const char* name) {
 				outIndex += strlen(outBuf + outIndex);
 				break;
 			case 'D':		//date
+=======
+			case 'd':		//date
+>>>>>>> parent of b3ed3ba... Merge pull request #12 from Avygeil/demotokens
 				Com_sprintf( outBuf + outIndex, outLeft, "%d-%02d-%02d-%02d%02d%02d",
 								1900+ct.tm_year, ct.tm_mon+1,ct.tm_mday,
 								ct.tm_hour, ct.tm_min, ct.tm_sec);
@@ -73,10 +72,6 @@ char *demoAutoFormat(const char* name) {
 			case 'P':		//current player name
 				Com_sprintf( outBuf + outIndex, outLeft, playerName);
 				outIndex += strlen( outBuf + outIndex );
-				break;
-			case 's':
-				Com_sprintf(outBuf + outIndex, outLeft, serverName);
-				outIndex += strlen(outBuf + outIndex);
 				break;
 			case 't':		//timestamp
 				while (demo.record.timeStamps[t] && t < MAX_TIMESTAMPS) {
