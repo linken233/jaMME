@@ -371,15 +371,14 @@ protocolParams_t parseParams[] = {
 	{"fs_game",PROTOCOL_CVAR},
 };
 
-//ja://ip:port&password=pass&fs_game=mod -> +connect ip:port +set password pass +set fs_game mod
+//ja://ip:port&password=pass&fs_game=mod -> +connect ip:port +password pass +set fs_game mod
 char *Com_ParseProtocol(char *commandLine) {
 	static char newCommandLine[256];
 	char *protocol;
-	//ip has to contain dots, doesn't it?
-	if ((protocol = strstr(commandLine, "ja:")) && (strchr(commandLine, '.') || strstr(commandLine, "localhost"))) {
+	//ip has to contain dots, hasn't it?
+	if ((protocol = strstr(commandLine, "ja:")) && (strchr(commandLine, '.') || strstr(commandLine, "hostname"))) {
 		protocol += 3;
-		//allow only alphanumeric with ".", ":" and "-"
-		char *ip = strtok(protocol, " /\\?!\"#$%&\'()*+,;<=>@[]^_`{|}~");
+		char *ip = strtok(protocol, " /\\?!\"#$%&\'()*+,;<=>@[]^_`{|}~"); //allow only alphanumeric with ".", ":" and "-"
 		if (ip) {
 			Q_strcat(newCommandLine, sizeof(newCommandLine), "+connect ");
 			Q_strcat(newCommandLine, sizeof(newCommandLine), ip);
