@@ -3,7 +3,7 @@
 
 #include "tr_local.h"
 
-#if !defined (HAVE_GLES) || defined (X86_OR_64)
+#if defined (X86_OR_64)
 #include <mmintrin.h>
 #endif
 

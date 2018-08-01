@@ -31,26 +31,28 @@ static struct {
 } mainData;
 
 static void R_MME_MakeBlurBlock( mmeBlurBlock_t *block, int size, mmeBlurControl_t* control ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	memset( block, 0, sizeof( *block ) );
 	size = (size + 15) & ~15;
-	block->count = (size >> 3);
+	block->count = size / sizeof ( __m64 );
 	block->control = control;
 
 	if ( control->totalFrames ) {
 		//Allow for floating point buffer with sse
-		block->accum = (workAlign + workUsed);
-		workUsed += (size << 2);
+		block->accum = (__m64 *)(workAlign + workUsed);
+		workUsed += size * 4;
 		if ( workUsed > workSize ) {
 			ri.Error( ERR_FATAL, "Failed to allocate %d bytes from the mme_workMegs buffer\n", workUsed );
 		}
 	} 
 	if ( control->overlapFrames ) {
-		block->overlap = (workAlign + workUsed);
+		block->overlap = (__m64 *)(workAlign + workUsed);
 		workUsed += control->overlapFrames * size;
 		if ( workUsed > workSize ) {
 			ri.Error( ERR_FATAL, "Failed to allocate %d bytes from the mme_workMegs buffer\n", workUsed );
 		}
 	}
+#endif
 }
 
 static void R_MME_CheckCvars( void ) {
@@ -60,26 +62,47 @@ static void R_MME_CheckCvars( void ) {
 
 	pixelCount = glConfig.vidHeight * glConfig.vidWidth;
 
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	if (mme_blurFrames->integer > BLURMAX) {
 		ri.Cvar_Set("mme_blurFrames", va("%d", BLURMAX));
 	}
 	else if (mme_blurFrames->integer < 0) {
 		ri.Cvar_Set("mme_blurFrames", "0");
 	}
+#else
+	if (mme_blurFrames->integer > 0) {
+		Com_Printf(S_COLOR_YELLOW "Blur frames are not supported on this CPU\n");
+		ri.Cvar_Set("mme_blurFrames", "0");
+	}
+#endif
 
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	if (mme_blurOverlap->integer > BLURMAX) {
 		ri.Cvar_Set("mme_blurOverlap", va("%d", BLURMAX));
 	}
 	else if (mme_blurOverlap->integer < 0) {
 		ri.Cvar_Set("mme_blurOverlap", "0");
 	}
+#else
+	if (mme_blurOverlap->integer > 0) {
+		Com_Printf(S_COLOR_YELLOW "Blur overlap is not supported on this CPU\n");
+		ri.Cvar_Set("mme_blurOverlap", "0");
+	}
+#endif
 
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	if (mme_dofFrames->integer > BLURMAX) {
 		ri.Cvar_Set("mme_dofFrames", va("%d", BLURMAX));
 	}
 	else if (mme_dofFrames->integer < 0) {
 		ri.Cvar_Set("mme_dofFrames", "0");
 	}
+#else
+	if (mme_dofFrames->integer > 0) {
+		Com_Printf(S_COLOR_YELLOW "Dof frames are not supported on this CPU\n");
+		ri.Cvar_Set("mme_dofFrames", "0");
+	}
+#endif
 
 	blurTotal = mme_blurFrames->integer + mme_blurOverlap->integer ;
 	passTotal = mme_dofFrames->integer;
@@ -161,9 +184,10 @@ void R_MME_JitterViewStereo( float *pixels, float *eyes ) {
 }
 
 int R_MME_MultiPassNextStereo( ) {
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 	mmeBlurControl_t* control = &passData.control;
 	byte* outAlloc;
-	byte *outAlign;
+	__m64 *outAlign;
 	int index;
 	if ( !shotData.take )
 		return 0;
@@ -172,7 +196,7 @@ int R_MME_MultiPassNextStereo( ) {
 
 	index = control->totalIndex;
 	outAlloc = (byte *)ri.Hunk_AllocateTempMemory( mainData.pixelCount * 3 + 16);
-	outAlign = (byte *)((((intptr_t)(outAlloc)) + 15) & ~15);
+	outAlign = (__m64 *)((((intptr_t)(outAlloc)) + 15) & ~15);
 
 	GLimp_EndFrame();
 	R_MME_GetShot( outAlign, shotData.main.type );
@@ -190,6 +214,10 @@ int R_MME_MultiPassNextStereo( ) {
 	control->totalIndex = 0;
 	R_MME_BlurAccumShift( &passData.dof );
 	return 0;
+#else
+	shotData.take = qfalse;
+	return 0;
+#endif
 }
 
 static void R_MME_MultiShot( byte * target ) {
@@ -240,6 +268,7 @@ qboolean R_MME_TakeShotStereo( void ) {
 //		mmeBlurBlock_t *blurStencil = &blurData.stencil;
 
 		/* Test if we blur with overlapping frames */
+#if !defined (HAVE_GLES) || defined (X86_OR_64)
 		if ( blurControl->overlapFrames ) {
 			/* First frame in a sequence, fill the buffer with the last frames */
 			if (blurControl->totalIndex == 0) {
@@ -277,20 +306,20 @@ qboolean R_MME_TakeShotStereo( void ) {
 			blurControl->totalIndex++;
 		} else {
 			byte *outAlloc;
-			byte *outAlign;
+			__m64 *outAlign;
 			outAlloc = (byte *)ri.Hunk_AllocateTempMemory( pixelCount * 3 + 16);
-			outAlign = (byte *)((((intptr_t)(outAlloc)) + 15) & ~15);
+			outAlign = (__m64 *)((((intptr_t)(outAlloc)) + 15) & ~15);
 
 			if ( mme_saveShot->integer == 1 ) {
-				R_MME_MultiShot( outAlign );
+				R_MME_MultiShot( (byte*)outAlign );
 				if ( doGamma && mme_blurGamma->integer ) {
-					R_GammaCorrect( outAlign, pixelCount * 3 );
+					R_GammaCorrect( (byte *) outAlign, pixelCount * 3 );
 				}
 				R_MME_BlurAccumAdd( blurShot, outAlign );
 			}
 
 			if ( mme_saveDepth->integer == 1 ) {
-				R_MME_GetDepth( outAlign );
+				R_MME_GetDepth( (byte *)outAlign );
 				R_MME_BlurAccumAdd( blurDepth, outAlign );
 			}
 
@@ -301,6 +330,7 @@ qboolean R_MME_TakeShotStereo( void ) {
 			ri.Hunk_FreeTempMemory( outAlloc );
 			blurControl->totalIndex++;
 		}
+#endif
 
 		if ( blurControl->totalIndex >= blurControl->totalFrames ) {
 			float fps;
