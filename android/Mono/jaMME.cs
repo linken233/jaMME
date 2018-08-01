@@ -177,7 +177,7 @@ namespace android {
 							Log.Debug("SDL", "audioWriteShortBuffer sleep");
 							Thread.Sleep(1);
 						} catch (InterruptedException exception) {
-							Log.Debug("SDL", "audioWriteShortBuffer interrupted: " + exception);
+							// Nom nom
 						}
 					} else {
 						Log.Warn("SDL", "SDL audio: error return from write(short)");
@@ -202,7 +202,7 @@ namespace android {
 						try {
 							Thread.Sleep(1);
 						} catch (InterruptedException exception) {
-							Log.Debug("SDL", "audioWriteShortBuffer interrupted: " + exception);
+							// Nom nom
 						}
 					} else {
 						Log.Warn("SDL", "SDL audio: error return from write(byte)");
@@ -988,6 +988,7 @@ namespace android {
 		}
 		private Integer lastMin = new Integer(0), lastMax = new Integer(0);
 		private class jaMMERangeSeekBar : RangeSeekBar<Integer> {
+			string LOG = "jaMME RangeSeekBar";
 			private jaMME jamme;
 			public short lastChange = 0;
 			public jaMMERangeSeekBar(Integer min, Integer max, jaMME context) : base(min, max, (int)(50*context.density), context) {
