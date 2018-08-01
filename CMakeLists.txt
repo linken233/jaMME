@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8)
 # For checks in subdirectories
-set(InjaMME TRUE)
+set(InOpenJK TRUE)
 
 # Project name
 set(ProjectName "jaMME" CACHE STRING "Project Name")
@@ -8,14 +8,19 @@ project(${ProjectName})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-option(BuildEngine "Whether to create projects for the MP client (jamme.exe)" ON)
-option(BuildRenderer "Whether to create projects for the MP default renderer (rd-jamme_x86.dll)" ON)
-option(BuildGame "Whether to create projects for the MP server-side gamecode (jampgamex86.dll)" ON)
-option(BuildCGame "Whether to create projects for the MP clientside gamecode (cgamex86.dll)" ON)
-option(BuildUI "Whether to create projects for the MP UI code (uix86.dll)" ON)
+# Customizable options
+option(BuildPortableVersion "Build portable version (does not read or write files from your user/home directory" OFF)
+
+option(BuildMPEngine "Whether to create projects for the MP client (openjk.exe)" ON)
+option(BuildMPRdVanilla "Whether to create projects for the MP default renderer (rd-vanilla_x86.dll)" ON)
+option(BuildMPDed "Whether to create projects for the MP dedicated server (openjkded.exe)" ON)
+option(BuildMPGame "Whether to create projects for the MP server-side gamecode (jampgamex86.dll)" ON)
+option(BuildMPCGame "Whether to create projects for the MP clientside gamecode (cgamex86.dll)" ON)
+option(BuildMPUI "Whether to create projects for the MP UI code (uix86.dll)" ON)
 
 # Customizable libraries
 if(WIN32)
+	option(UseInternalOpenAL "Whether to use the included OpenAL instead of a locally installed one" ON)
 	option(UseInternalZlib "Whether to use the included zlib instead of a locally installed one" ON)
 endif()
 
@@ -30,6 +35,8 @@ if(APPLE)
 else()
 	set(MakeApplicationBundles OFF)
 endif()
+
+option(PackageDir "Where to place the installer/package." "${CMAKE_SOURCE_DIR}/package")
 
 # Custom CMake Modules needed
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_SOURCE_DIR}/CMakeModules")
@@ -59,15 +66,32 @@ endif()
 
 message("Architecture is ${Architecture}")
 
+# Current Git SHA1 hash
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+# TODO: actually use the Git SHA1 for something?
+message("Git revision is ${GIT_SHA1}")
+
 # Binary names
-set(jaMMEEngine "jaMME.${Architecture}")
-set(jaMMERenderer "rd-jamme_${Architecture}")
-set(jaMMEGame "jampgame${Architecture}")
-set(jaMMECGame "cgame${Architecture}")
-set(jaMMEUI "ui${Architecture}")
+set(SPEngine "openjk_sp.${Architecture}")
+set(SPGame "jagame${Architecture}")
+set(SPRDVanillaRenderer "rdsp-vanilla_${Architecture}")
+set(MPEngine "jaMME.${Architecture}")
+set(MPVanillaRenderer "rd-jaMME_${Architecture}")
+set(MPDed "openjkded.${Architecture}")
+set(MPGame "jampgame${Architecture}")
+set(MPCGame "cgame${Architecture}")
+set(MPUI "ui${Architecture}")
+set(JK2SPEngine "openjo_sp.${Architecture}")
+set(JK2SPGame "jospgame${Architecture}")
+set(JK2SPVanillaRenderer "rdjosp-vanilla_${Architecture}")
+# Library names
+set(MPBotLib "botlib")
 
 # Paths
+set(SPDir "${CMAKE_SOURCE_DIR}/code")
 set(MPDir "${CMAKE_SOURCE_DIR}/codemp")
+set(JK2SPDir "${CMAKE_SOURCE_DIR}/codeJK2")
 
 # Common settings
 if(WIN32)
@@ -76,15 +100,15 @@ if(WIN32)
 	endif(MSVC)
 	if(WIN64)
 		if(MSVC)
-			set(SharedDefines "_WINDOWS" "WIN64" "_CRT_SECURE_NO_WARNINGS")
+			set(SharedDefines "WIN64" "_CRT_SECURE_NO_WARNINGS")
 		else()
-			set(SharedDefines "_WINDOWS" "WIN64")
+			set(SharedDefines "WIN64")
 			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
 		endif()
 	else()
 		if(MSVC)
-			set(SharedDefines "_WINDOWS" "_CRT_SECURE_NO_WARNINGS")
+			set(SharedDefines "_CRT_SECURE_NO_WARNINGS")
 			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
 		endif()
@@ -151,34 +175,42 @@ else()
 	endif()
 endif()
 
-set(SharedDefines ${SharedDefines} "_JK2MP" "_JK2")
-
 if (NOT CMAKE_BUILD_TYPE)
 	message("No build type selected, default to RELEASE")
 	set(CMAKE_BUILD_TYPE "RELEASE")
 endif()
 
 # Settings
-if (WIN32)
-	set(jaMMELibDir "${CMAKE_SOURCE_DIR}/${MPDir}/libs/win32/lib")
-else()
-	if(APPLE)
-		set(jaMMELibDir "${CMAKE_SOURCE_DIR}/${MPDir}/libs/macosx/lib")
-	endif()
+if(BuildPortableVersion)
+	set(SharedDefines ${SharedDefines} "_PORTABLE_VERSION")
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES "DEBUG" OR CMAKE_BUILD_TYPE MATCHES "Debug")
+set(OpenJKLibDir "${CMAKE_SOURCE_DIR}/lib")
+
+if(NOT MSVC)
 	# CMake already defines _DEBUG for MSVC.
-	if (NOT MSVC)
-		set(SharedDefines ${SharedDefines} "_DEBUG")
-	endif()
-else()
-	set(SharedDefines ${SharedDefines} "FINAL_BUILD")
+	set(DebugDefines ${DebugDefines} "_DEBUG")
 endif()
 
 set(ReleaseDefines "FINAL_BUILD")
 
-set(jaMMEInstallDir "${CMAKE_SOURCE_DIR}/build")
-
 # Add projects
 add_subdirectory(${MPDir})
+
+# CPack for installer creation
+# TODO: Which version are we?
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+# I'm just not appending the version for now
+set(CPACK_PACKAGE_FILE_NAME "OpenJK-${CMAKE_SYSTEM_NAME}-${Architecture}")
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An improved Jedi Academy")
+set(CPACK_PACKAGE_VENDOR "JACoders")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_PACKAGE_DIRECTORY ${PACKAGE_DIR})
+set(CPACK_BINARY_ZIP ON) # always create at least a zip file
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0) # prevent additional directory in zip
+
+include(CPack)

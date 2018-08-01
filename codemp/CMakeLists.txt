@@ -1,39 +1,38 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Make sure the user is not executing this script directly
-if(NOT InjaMME)
+if(NOT InOpenJK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InjaMME)
+endif(NOT InOpenJK)
 
-set(MPSharedDefines ${SharedDefines})
+set(MPSharedDefines ${SharedDefines} "_JK2")
 
 #    Add Game Project
-if(BuildGame)
+if(BuildMPGame)
 	add_subdirectory("${MPDir}/game")
-endif(BuildGame)
+endif(BuildMPGame)
 
 #    Add CGame Project
-if(BuildCGame)
+if(BuildMPCGame)
 	add_subdirectory("${MPDir}/cgame")
-endif(BuildCGame)
+endif(BuildMPCGame)
 
 #    Add UI Project
-if(BuildUI)
+if(BuildMPUI)
 	add_subdirectory("${MPDir}/ui")
-endif(BuildUI)
+endif(BuildMPUI)
 
-#	 Add Renderer Project
-if(BuildEngine)
+#	 Add Vanilla JKA Renderer Project
+if(BuildMPEngine)
 	add_subdirectory("${MPDir}/rd-vanilla")
-endif(BuildEngine)
+endif(BuildMPEngine)
 
 
-#        Engine/Executable (jamme.exe)
-
-if(BuildEngine)
+#    Common things between Engine and Dedicated Server
+if(BuildMPEngine OR BuildMPDed)
 
 	#    Botlib
-	# the files could arguably just be put into the engine without having a library for it.
+	# the files could arguably just be put into the engine and dedicated projects without having a library for it.
 	set(MPBotlibDefines ${SharedDefines} "BOTLIB")
 	set(MPBotlibIncludeDirectories "${MPDir}")
 	set(MPBotlibHeaderFiles
@@ -113,9 +112,9 @@ if(BuildEngine)
 		)
 	source_group("Source Files" FILES ${MPBotlibSourceFiles})
 	
-#	add_library(${MPBotLib} STATIC ${MPBotlibHeaderFiles} ${MPBotlibSourceFiles})
-#	set_target_properties(${MPBotLib} PROPERTIES COMPILE_DEFINITIONS "${MPBotlibDefines}")
-#	set_target_properties(${MPBotLib} PROPERTIES INCLUDE_DIRECTORIES "${MPBotlibIncludeDirectories}")
+	add_library(${MPBotLib} STATIC ${MPBotlibHeaderFiles} ${MPBotlibSourceFiles})
+	set_target_properties(${MPBotLib} PROPERTIES COMPILE_DEFINITIONS "${MPBotlibDefines}")
+	set_target_properties(${MPBotLib} PROPERTIES INCLUDE_DIRECTORIES "${MPBotlibIncludeDirectories}")
 	
 	#    Common files/libraries/defines of both Engine and Dedicated Server
 	
@@ -132,7 +131,11 @@ if(BuildEngine)
 	
 	if(UseInternalZlib)
 		set(MPEngineAndDedIncludeDirectories ${MPEngineAndDedIncludeDirectories} "${MPDir}/zlib")
-		find_library(ZlibLibrary NAMES zlib PATHS "${MPDir}/libs/win32/lib")
+		# OpenAL32.lib is included for windows
+		find_library(ZlibLibrary NAMES zlib PATHS "${MPDir}/libs/win32")
+		if(NOT ZlibLibrary)
+			message(FATAL_ERROR "UseInternalOpenAL set, but libs/OpenAL32 not found!")
+		endif(NOT ZlibLibrary)
 		set(MPEngineAndDedLibraries ${MPEngineAndDedLibraries} ${ZlibLibrary})
 	else(UseInternalZlib)
 		find_package(ZLIB REQUIRED)
@@ -222,9 +225,9 @@ if(BuildEngine)
 		"${MPDir}/qcommon/z_memman_pc.cpp"
 		)
 	if(WIN32)
-#		set(MPEngineAndDedCommonFiles
-#			${MPEngineAndDedCommonFiles}
-#			"${MPDir}/qcommon/vm_x86.cpp")
+		set(MPEngineAndDedCommonFiles
+			${MPEngineAndDedCommonFiles}
+			"${MPDir}/qcommon/vm_x86.cpp")
 	endif(WIN32)
 	source_group("common" FILES ${MPEngineAndDedCommonFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCommonFiles})
@@ -345,26 +348,25 @@ if(BuildEngine)
 		set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedSysFiles})
 		source_group("sys" FILES ${MPEngineAndDedSysFiles})
 	endif(WIN32)
+endif(BuildMPEngine OR BuildMPDed)
 
+#        Engine/Executable (jamp.exe)
+
+if(BuildMPEngine)
 	set(MPEngineLibraries ${MPEngineAndDedLibraries})
 	set(MPEngineIncludeDirectories ${MPEngineAndDedIncludeDirectories})
 	set(MPEngineFiles ${MPEngineAndDedFiles})
-	set(MPEngineDefines ${MPSharedDefines} "USE_CURL" "USE_CURL" "CURL_STATICLIB" "_WINSOCK_H")
+	set(MPEngineDefines ${MPSharedDefines} "_JK2MP" "USE_CURL")
 	
 	#    Dependencies
 	
+	# OpenGL
+	# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
+	find_package(OpenGL REQUIRED)
+	set(MPEngineIncludeDirectories ${MPEngineIncludeDirectories} ${OPENGL_INCLUDE_DIR})
+	set(MPEngineLibraries ${MPEngineLibraries} ${OPENGL_LIBRARIES})
+	
 	#library stuff
-	if(WIN32)
-		if(MSVC14)
-			set(MPEngineLibraries ${MPEngineLibraries} legacy_stdio_definitions.lib)
-		endif(MSVC144)
-		set(MPEngineLibraries ${MPEngineLibraries} ${MPDir}/libs/win32/lib/libmad.lib)
-		set(MPEngineLibraries ${MPEngineLibraries} ${MPDir}/libs/win32/lib/libFLAC_static.lib)
-		set(MPEngineLibraries ${MPEngineLibraries} ${MPDir}/libs/win32/lib/libogg_static.lib)
-		set(MPEngineLibraries ${MPEngineLibraries} ${MPDir}/libs/win32/lib/libvorbis_static.lib)
-		set(MPEngineLibraries ${MPEngineLibraries} ${MPDir}/libs/win32/lib/libcurl.lib)
-		set(MPEngineLibraries ${MPEngineLibraries} ${MPDir}/libs/win32/lib/win_utf8_io_static.lib)
-	endif(WIN32)
 	if(UNIX)
 		if(APPLE)
 			set(MPEngineLibraries ${MPEngineLibraries} ${MPDir}/libs/macosx/lib/libmad.a)
@@ -381,6 +383,22 @@ if(BuildEngine)
 		endif(APPLE)
 	endif(UNIX)
 	
+	# OpenAL (is optionally included for Windows)
+	if(UseInternalOpenAL)
+		set(MPEngineIncludeDirectories ${MPEngineIncludeDirectories} "${MPDir}/client/OpenAL")
+		# There's a libs/OpenAL32.lib
+		# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
+		find_library(OpenALLibrary NAMES OpenAL32 PATHS "${MPDir}/libs/win32")
+		if(NOT OpenALLibrary)
+			message(FATAL_ERROR "UseInternalOpenAL set, but codemp/libs/win32/OpenAL32 not found!")
+		endif(NOT OpenALLibrary)
+		set(MPEngineLibraries ${MPEngineLibraries} ${OpenALLibrary})
+	else(UseInternalOpenAL)
+		find_package(OpenAL REQUIRED)
+		set(MPEngineIncludeDirectories ${MPEngineIncludeDirectories} ${OPENAL_INCLUDE_DIR})
+		set(MPEngineLibraries ${MPEngineLibraries} ${OPENAL_LIBRARY})
+	endif(UseInternalOpenAL)
+
 	if(NOT WIN32)
 		find_package(SDL2 REQUIRED)
 		set(MPEngineIncludeDirectories ${MPEngineIncludeDirectories} ${SDL2_INCLUDE_DIR})
@@ -389,11 +407,18 @@ if(BuildEngine)
 
 	set(MPEngineIncludeDirectories ${MPEngineIncludeDirectories} ${MPDir}/libs/win32/include)
 
+	# EAX is Windows-Only (right?)
+	if(WIN32)
+		set(MPEngineEAXFiles
+			"${MPDir}/client/eax/eax.h"
+			"${MPDir}/client/eax/EaxMan.h"
+			)
+		source_group("eax" FILES ${MPEngineEAXFiles})
+		set(MPEngineFiles ${MPEngineFiles} ${MPEngineEAXFiles})
+	endif(WIN32)
+	
 	#    Source Files
 	
-	set(MPEngineDefines ${MPSharedDefines} ${MPBotlibDefines})
-	set(MPEngineFiles ${MPEngineFiles} ${MPBotlibHeaderFiles})
-	set(MPEngineFiles ${MPEngineFiles} ${MPBotlibSourceFiles})
 	# TODO: Allow for use of external library
 	file(GLOB_RECURSE MPEngineJpegFiles "${MPDir}/jpeg-8c/*.c" "${MPDir}/jpeg-8c/*.h")
 	source_group("jpeg-8c" FILES ${MPEngineJpegFiles})
@@ -477,7 +502,7 @@ if(BuildEngine)
 			"${MPDir}/win32/win_snd.cpp"
 			"${MPDir}/win32/win_syscon.cpp"
 			"${MPDir}/win32/win_wndproc.cpp"
-			"${MPDir}/win32/jamme.rc"
+			"${MPDir}/win32/openjk.rc"
 			)
 		source_group("win32" FILES ${MPEngineWin32Files})
 		set(MPEngineFiles ${MPEngineFiles} ${MPEngineWin32Files})
@@ -500,8 +525,8 @@ if(BuildEngine)
 	# todo: windows resources
 	
 	if(MakeApplicationBundles)
-		set(MACOSX_BUNDLE_BUNDLE_NAME ${jaMMEEngine})
-		set(MACOSX_BUNDLE_DISPLAY_NAME ${jaMMEEngine})
+		set(MACOSX_BUNDLE_BUNDLE_NAME ${MPEngine})
+		set(MACOSX_BUNDLE_DISPLAY_NAME ${MPEngine})
 		set(MACOSX_BUNDLE_ICON_FILE jaMME.icns)
 		set_source_files_properties(${MPDir}/macosx/jaMME.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 		set(MPEngineFiles ${MPEngineFiles} ${MPDir}/macosx/jaMME.icns)
@@ -510,22 +535,112 @@ if(BuildEngine)
 	endif(MakeApplicationBundles)
 
 	if(WIN32)
-		add_executable(${jaMMEEngine} WIN32 ${MPEngineFiles})
+		add_executable(${MPEngine} WIN32 ${MPEngineFiles})
 	else(WIN32)
 		if(MakeApplicationBundles)
-			add_executable(${jaMMEEngine} MACOSX_BUNDLE ${MPEngineFiles})
-			set_target_properties(${jaMMEEngine} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${MPDir}/macosx/jaMMEInfo.plist")
+			add_executable(${MPEngine} MACOSX_BUNDLE ${MPEngineFiles})
+			set_target_properties(${MPEngine} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${MPDir}/macosx/jaMMEInfo.plist")
 		else(MakeApplicationBundles)
-			add_executable(${jaMMEEngine} ${MPEngineFiles})
+			add_executable(${MPEngine} ${MPEngineFiles})
 		endif(MakeApplicationBundles)
 	endif(WIN32)
 	if(MakeApplicationBundles)
-		install(TARGETS ${jaMMEEngine} BUNDLE DESTINATION "${jaMMEInstallDir}")
+		install(TARGETS ${MPEngine} BUNDLE DESTINATION ".")
 	else(MakeApplicationBundles)
-		install(TARGETS ${jaMMEEngine} RUNTIME DESTINATION "${jaMMEInstallDir}")
+		install(TARGETS ${MPEngine} RUNTIME DESTINATION ".")
 	endif(MakeApplicationBundles)
-	set_target_properties(${jaMMEEngine} PROPERTIES COMPILE_DEFINITIONS_RELEASE "${MPEngineDefines};${ReleaseDefines}")
-	set_target_properties(${jaMMEEngine} PROPERTIES COMPILE_DEFINITIONS_DEBUG "${MPEngineDefines};${DebugDefines}")
-	set_target_properties(${jaMMEEngine} PROPERTIES INCLUDE_DIRECTORIES "${MPEngineIncludeDirectories}")
-	target_link_libraries(${jaMMEEngine} ${MPEngineLibraries})
-endif(BuildEngine)
+	set_target_properties(${MPEngine} PROPERTIES COMPILE_DEFINITIONS_RELWITHDEBINFO "${MPEngineDefines};${ReleaseDefines}")
+	set_target_properties(${MPEngine} PROPERTIES COMPILE_DEFINITIONS_MINSIZEREL "${MPEngineDefines};${ReleaseDefines}")
+	set_target_properties(${MPEngine} PROPERTIES COMPILE_DEFINITIONS_RELEASE "${MPEngineDefines};${ReleaseDefines}")
+	set_target_properties(${MPEngine} PROPERTIES COMPILE_DEFINITIONS_DEBUG "${MPEngineDefines};${DebugDefines}")
+	set_target_properties(${MPEngine} PROPERTIES INCLUDE_DIRECTORIES "${MPEngineIncludeDirectories}")
+	target_link_libraries(${MPEngine} ${MPEngineLibraries})
+endif(BuildMPEngine)
+
+#        Dedicated Server (Engine) (jampded.exe)
+
+if(BuildMPDed)
+	set(MPDedLibraries ${MPEngineAndDedLibraries})
+	set(MPDedIncludeDirectories ${MPEngineAndDedIncludeDirectories})
+	set(MPDedFiles ${MPEngineAndDedFiles})
+	set(MPDedDefines ${MPSharedDefines} "_CONSOLE" "DEDICATED")
+
+	# Dedicated renderer is compiled with the server.
+	set(MPDedicatedRendererFiles
+		"${MPDir}/renderer/mdx_format.h"
+		"${MPDir}/renderer/tr_public.h"
+		"${MPDir}/rd-dedicated/G2_bolts.cpp"
+		"${MPDir}/rd-dedicated/G2_bones.cpp"
+		"${MPDir}/rd-dedicated/G2_misc.cpp"
+		"${MPDir}/rd-dedicated/G2_surfaces.cpp"
+		"${MPDir}/rd-dedicated/tr_backend.cpp"
+		"${MPDir}/rd-dedicated/tr_ghoul2.cpp"
+		"${MPDir}/rd-dedicated/tr_image.cpp"
+		"${MPDir}/rd-dedicated/tr_init.cpp"
+		"${MPDir}/rd-dedicated/tr_main.cpp"
+		"${MPDir}/rd-dedicated/tr_mesh.cpp"
+		"${MPDir}/rd-dedicated/tr_model.cpp"
+		"${MPDir}/rd-dedicated/tr_shader.cpp")
+	source_group("renderer" FILES ${MPDedicatedRendererFiles})
+	set(MPDedFiles ${MPDedFiles} ${MPDedicatedRendererFiles})
+
+	set(MPDedicatedPngFiles
+		"${MPDir}/png/rpng.cpp")
+	source_group("png" FILES ${MPDedicatedPngFiles})
+	set(MPDedFiles ${MPDedFiles} ${MPDedicatedPngFiles})
+
+	set(MPDedLibPngFiles
+		"${MPDir}/libpng/png.c"
+		"${MPDir}/libpng/pngerror.c"
+		"${MPDir}/libpng/pngget.c"
+		"${MPDir}/libpng/pngmem.c"
+		"${MPDir}/libpng/pngpread.c"
+		"${MPDir}/libpng/pngread.c"
+		"${MPDir}/libpng/pngrio.c"
+		"${MPDir}/libpng/pngrtran.c"
+		"${MPDir}/libpng/pngrutil.c"
+		"${MPDir}/libpng/pngset.c"
+		"${MPDir}/libpng/pngtrans.c"
+		"${MPDir}/libpng/pngwio.c"
+		"${MPDir}/libpng/pngwrite.c"
+		"${MPDir}/libpng/pngwtran.c"
+		"${MPDir}/libpng/pngwutil.c")
+	source_group("libpng" FILES ${MPDedLibPngFiles})
+	set(MPDedFiles ${MPDedFiles} ${MPDedLibPngFiles})
+	
+	set(MPDedNullFiles
+		"${MPDir}/null/null_client.cpp"
+		"${MPDir}/null/null_input.cpp"
+		"${MPDir}/null/null_renderer.cpp"
+		"${MPDir}/null/null_snddma.cpp"
+		)
+	source_group("null" FILES ${MPDedNullFiles})
+	set(MPDedFiles ${MPDedFiles} ${MPDedNullFiles})
+	if(WIN32)
+		set(MPDedWin32Files
+			"${MPDir}/null/win_main.cpp"
+			"${MPDir}/win32/openjkded.rc"
+			)
+		source_group("win32" FILES ${MPDedWin32Files})
+		set(MPDedFiles ${MPDedFiles} ${MPDedWin32Files})
+	else(WIN32)
+		set(MPDedSysFiles
+			"${MPDir}/sys/sys_main.cpp"
+			"${MPDir}/sys/sys_net.cpp"
+			"${MPDir}/sys/sys_unix.cpp"
+			"${MPDir}/sys/unix_local.h"
+			)
+		set(MPDedLibraries ${MPDedLibraries} ${CMAKE_DL_LIBS})
+		source_group("sys" FILES ${MPDedSysFiles})
+		set(MPDedFiles ${MPDedFiles} ${MPDedSysFiles})
+	endif(WIN32)
+	
+	add_executable(${MPDed} ${MPDedFiles})
+	install(TARGETS ${MPDed} RUNTIME DESTINATION ".")
+	set_target_properties(${MPDed} PROPERTIES COMPILE_DEFINITIONS_RELWITHDEBINFO "${MPDedDefines};${ReleaseDefines}")
+	set_target_properties(${MPDed} PROPERTIES COMPILE_DEFINITIONS_MINSIZEREL "${MPDedDefines};${ReleaseDefines}")
+	set_target_properties(${MPDed} PROPERTIES COMPILE_DEFINITIONS_RELEASE "${MPDedDefines};${ReleaseDefines}")
+	set_target_properties(${MPDed} PROPERTIES COMPILE_DEFINITIONS_DEBUG "${MPDedDefines};${DebugDefines}")
+	set_target_properties(${MPDed} PROPERTIES INCLUDE_DIRECTORIES "${MPDedIncludeDirectories}")
+	target_link_libraries(${MPDed} ${MPDedLibraries})
+endif(BuildMPDed)
