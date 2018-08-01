@@ -18,6 +18,7 @@
 	#define GL_RGB5					0x8050
 #endif
 #else
+#error("oh")
 	#include "../sdl/sdl_qgl.h"
 	#include <mmintrin.h>
 	#include <emmintrin.h>
