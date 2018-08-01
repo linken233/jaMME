@@ -74,7 +74,6 @@
   <ItemGroup>
     <Compile Include="DirectoryChooserDialog.cs" />
     <Compile Include="JAKeycodes.cs" />
-    <Compile Include="jaMMEService.cs" />
     <Compile Include="MobileKeycodes.cs" />
     <Compile Include="RangeSeekBar.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
