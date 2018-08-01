@@ -48,7 +48,7 @@ namespace android {
 		private bool gameReady = false;
 		private string gamePath, gameArgs = "", demoName = null;
 		private Intent service;
-		public static bool ServiceRunning = false, KillService = false, GameRunning = false;
+		public static bool ServiceRunning = false, KillService = false;
 
 		private jaMMEView view;
 		private jaMMERenderer renderer;
@@ -533,7 +533,6 @@ namespace android {
 			Log.Info("jaMME", "OnDestroy");
 			base.OnDestroy();
 			this.stopService();
-			jaMME.GameRunning = false;
 			if (!gameReady) {
 				return;
 			}
@@ -1151,9 +1150,7 @@ namespace android {
 					inited = true;
 					initRenderer(this.jamme.surfaceWidth, this.jamme.surfaceHeight);
 				}
-				jaMME.GameRunning = false;
 				this.jamme.flags = frame();
-				jaMME.GameRunning = true;
 				this.jamme._handler.RemoveCallbacks(this.jamme._loadingMessage);
 				this.jamme.RunOnUiThread(() => {
 					if (this.jamme.pd != null) {
