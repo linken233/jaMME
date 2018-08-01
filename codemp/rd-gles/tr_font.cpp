@@ -1546,18 +1546,27 @@ void RE_Font_DrawString(float ox, float oy, const char *psText, const float *rgb
 			// else drop through and display as normal...
 		case '^':
 			if (uiLetter != '_') {	// necessary because of fallthrough above
-				psText--; //that is necessary because Q_parseColorString works with strings that start with ^
-				vec4_t color;
-				int colorLen = Q_parseColorString( psText, color, tr.uag.newColors);
-				if ( colorLen ) {
-					psText += colorLen;
-					if ( !gbInShadow ) {
+				if (tr.uag.newColors && ((*psText >= '0' && *psText <= '9') || (*psText >= 'A' && *psText <= 'Z'))) {
+					colour = ColorIndexUAG(*psText++);
+					if (!gbInShadow)
+					{
+						vec4_t color;
+						Com_Memcpy( color, g_color_table_uag[colour], sizeof( color ) );
+						color[3] = rgba[3];
+						RE_SetColor( color );
+					}
+					break;
+				} else if (*psText >= '0' && *psText <= '9') {
+					colour = ColorIndex(*psText++);
+					if (!gbInShadow)
+					{
+						vec4_t color;
+						Com_Memcpy( color, g_color_table[colour], sizeof( color ) );
 						color[3] = rgba[3];
 						RE_SetColor( color );
 					}
 					break;
 				}
-				psText++;
 			}
 			//purposely falls thrugh
 		default:
