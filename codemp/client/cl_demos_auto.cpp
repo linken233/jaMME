@@ -24,6 +24,7 @@ char *demoAutoFormat(const char* name) {
 <<<<<<< HEAD
 	char playerName[MAX_QPATH], *mapName = COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "mapname"));
 	Q_strncpyz(playerName, Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n"), sizeof(playerName));
+<<<<<<< HEAD
 	Q_StripColor(playerName, cls.uag.newColors);
 =======
 	char playerName[MAX_QPATH], serverName[MAX_QPATH];
@@ -37,6 +38,12 @@ char *demoAutoFormat(const char* name) {
 	Q_strncpyz(playerName, Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n"), sizeof(playerName));
 	Q_StripColor(playerName, cls.uag.newColors);
 >>>>>>> parent of 148b81a... Added new demo tokens from strftime (reference: pre C-99 rows from http://cplusplus.com/reference/ctime/strftime/). Renamed some tokens that conflicted with the new ones: date -> D, map -> N, player name -> P (demo name and timestamp are untouched). Also added current server, token: s
+=======
+	if (cls.uag.newColors)
+		Q_StripColorUAG(playerName);
+	else
+		Q_StripColor(playerName);
+>>>>>>> parent of 69606c3... Merge branch 'master' of https://github.com/entdark/jaMME
 	Com_RealTime(&ct);
 	
 	format = cl_autoDemoFormat->string;

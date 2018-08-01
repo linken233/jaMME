@@ -351,7 +351,7 @@ typedef enum {
 typedef struct {
 	qboolean	initialized;
 
-	int		text[CON_TEXTSIZE];
+	short	text[CON_TEXTSIZE];
 	int		current;		// line where next message will be printed
 	int		x;				// offset in current line for next print
 	int		display;		// bottom of console displays this line
@@ -371,7 +371,6 @@ typedef struct {
 								// for transparent notify lines
 	vec4_t	color;
 	conState_t state;
-	byte	filter;
 } console_t;
 
 extern	clientStatic_t		cls;

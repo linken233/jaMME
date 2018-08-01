@@ -254,9 +254,8 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 			s = string;
 			xx = x;
 			while ( *s ) {
-				int colorLen = Q_parseColorString( s, 0, cg.uag.newColors );
-				if ( colorLen ) {
-					s += colorLen;
+				if ( ( cg.uag.newColors && Q_IsColorStringUAG( s ) ) || Q_IsColorString( s ) ) {
+					s += 2;
 					continue;
 				}
 				CG_DrawChar( xx + 2*cgs.widthRatioCoef, y + 2, charWidth, charHeight, *s );
@@ -270,11 +269,21 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		xx = x;
 		trap_R_SetColor( setColor );
 		while ( *s ) {
-			int colorLen = Q_parseColorString( s, color, cg.uag.newColors );
-			if ( colorLen ) {
-				s += colorLen;
-				color[3] = setColor[3];
-				trap_R_SetColor( color );
+			if ( cg.uag.newColors && Q_IsColorStringUAG( s ) ) {
+				if ( !forceColor ) {
+					memcpy( color, g_color_table_uag[ColorIndexUAG(*(s+1))], sizeof( color ) );
+					color[3] = setColor[3];
+					trap_R_SetColor( color );
+				}
+				s += 2;
+				continue;
+			} else if ( Q_IsColorString( s ) ) {
+				if ( !forceColor ) {
+					memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+					color[3] = setColor[3];
+					trap_R_SetColor( color );
+				}
+				s += 2;
 				continue;
 			}
 			CG_DrawChar( xx, y, charWidth, charHeight, *s );
@@ -321,13 +330,12 @@ int CG_DrawStrlen( const char *str ) {
 	int count = 0;
 
 	while ( *s ) {
-		int colorLen = Q_parseColorString( s, 0, cg.uag.newColors);
-		if( colorLen ) {
-			s += colorLen;
-			continue;
+		if ( ( cg.uag.newColors && Q_IsColorStringUAG( s ) ) || Q_IsColorString( s ) ) {
+			s += 2;
+		} else {
+			count++;
+			s++;
 		}
-		count++;
-		s++;
 	}
 
 	return count;
