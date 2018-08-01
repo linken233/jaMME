@@ -306,13 +306,20 @@ namespace android {
 				unicode
 			);
 		}
-		public static void textPaste(string paste) {
-			using (var p = new Java.Lang.String(paste))
-				Java_com_jamme_jaMME_textPaste(
-					JNIEnv.Handle,
-					jaMME.jaMMEHandle,
-					p.Handle
-				);
+		public static void textPaste(byte []paste) {
+			var pastes = new Java.Lang.Byte[paste.Length];
+			for (int i = 0; i < paste.Length; i++) {
+				pastes[i] = new Java.Lang.Byte((sbyte)paste[i]);
+			}
+			var array = JNIEnv.NewObjectArray(paste);
+			JNIEnv.CopyArray(pastes, array);
+			Java_com_jamme_jaMME_textPaste(
+				JNIEnv.Handle,
+				jaMME.jaMMEHandle,
+				array
+			);
+			foreach (var p in pastes)
+				p.Dispose();
 		}
 		public static void doAction(int state, int action) {
 			Java_com_jamme_jaMME_doAction(
@@ -414,7 +421,7 @@ namespace android {
 					string paste = this.PasteFromClipboard();
 					if (paste != null) {
 						try {
-							jaMME.textPaste(paste);
+							jaMME.textPaste(System.Text.Encoding.ASCII.GetBytes(paste));
 							this.textPasted = true;
 						} catch (UnsupportedEncodingException exception) {
 							exception.PrintStackTrace();
