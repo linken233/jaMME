@@ -1210,12 +1210,8 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean unique
 						&& Q_stricmp( filename + l - 4, ".fcf" )	// force configuration files
 						&& Q_stricmp( filename + l - 5, ".menu" )	// menu files
 						&& Q_stricmp( filename + l - 5, ".game" )	// menu files
-                        && Q_stricmp( filename + l - strlen(demoExt), demoExt )	// menu files
-                        && Q_stricmp( filename + l - 4, ".wav" )	// wav audio files
-                        && Q_stricmp( filename + l - 4, ".mp3" )	// mp3 audio files
-                        && Q_stricmp( filename + l - 4, ".ogg" )	// ogg audio files
-                        && Q_stricmp( filename + l - 5, ".flac" )	// flac audio files
-                        && Q_stricmp( filename + l - 4, ".dat" ) ) {	// for journal files
+						&& Q_stricmp( filename + l - strlen(demoExt), demoExt )	// menu files
+						&& Q_stricmp( filename + l - 4, ".dat" ) ) {	// for journal files
 						continue;
 					}
 				}
@@ -1232,11 +1228,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean unique
 					&& Q_stricmp( filename + l - 4, ".fcf" )	// force configuration files
 					&& Q_stricmp( filename + l - 5, ".menu" )	// menu files
 					&& Q_stricmp( filename + l - 5, ".game" )	// menu files
-                    && Q_stricmp( filename + l - strlen(demoExt), demoExt )	// menu files
-                    && Q_stricmp( filename + l - 4, ".wav" )	// wav audio files
-                    && Q_stricmp( filename + l - 4, ".mp3" )	// mp3 audio files
-                    && Q_stricmp( filename + l - 4, ".ogg" )	// ogg audio files
-                    && Q_stricmp( filename + l - 5, ".flac" )	// flac audio files
+					&& Q_stricmp( filename + l - strlen(demoExt), demoExt )	// menu files
 					&& Q_stricmp( filename + l - 4, ".dat" ) ) {	// for journal files
 					fs_fakeChkSum = random();
 				}

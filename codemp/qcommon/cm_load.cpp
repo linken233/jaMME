@@ -1140,7 +1140,7 @@ int CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
 {
 	cmodel_t	*cmod;
 	int			contents = 0;
-	int64_t		i;
+	int			i;
 
 	if (!cm)
 	{

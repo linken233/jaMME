@@ -575,7 +575,7 @@ void CL_PlayDemo_f( void ) {
 		}
 		if (ext && *ext) {
 			char temp[MAX_OSPATH] = "_";
-			const char *demos = (!Q_stricmp(ext, ".mme")) ? "mmedemos" : "demos";
+			char *demos = (!Q_stricmp(ext, ".mme")) ? "mmedemos" : "demos";
 			while (FS_FileExists(va("%s/%s%s", demos, temp, ext))) {
 				if (strlen(temp) >= MAX_OSPATH-1)
 					break;
