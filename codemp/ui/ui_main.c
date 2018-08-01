@@ -1099,9 +1099,7 @@ _UI_Shutdown
 void UI_CleanupGhoul2(void);
 
 void _UI_Shutdown( void ) {
-#ifdef __ANDROID__
-	trap_LAN_SaveCachedServers();
-#endif
+//	trap_LAN_SaveCachedServers();
 	UI_CleanupGhoul2();
 }
 
@@ -10374,9 +10372,8 @@ void _UI_Init( qboolean inGameLoad ) {
 
 
 	Menus_CloseAll();
-#ifdef __ANDROID__
-	trap_LAN_LoadCachedServers();
-#endif
+
+//	trap_LAN_LoadCachedServers();
 	UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum);
 
 	UI_BuildQ3Model_List();
