@@ -20,9 +20,17 @@ char *demoAutoFormat(const char* name) {
 	char timeStamps[MAX_QPATH] = "";
 	qtime_t ct;
 
+<<<<<<< HEAD
 	char playerName[MAX_QPATH], *mapName = COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "mapname"));
 	Q_strncpyz(playerName, Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n"), sizeof(playerName));
 	Q_StripColor(playerName, cls.uag.newColors);
+=======
+	char playerName[MAX_QPATH], serverName[MAX_QPATH];
+	char *mapName = COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "mapname"));
+	Q_strncpyz(playerName, Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n"), sizeof(playerName));
+	Q_StripColor(playerName, cls.uag.newColors);
+	Q_StripColor(serverName, COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "sv_hostname")));
+>>>>>>> parent of 9ffa3a2... Fixed compiling and changed default format
 	Com_RealTime(&ct);
 	
 	format = cl_autoDemoFormat->string;
@@ -52,8 +60,8 @@ char *demoAutoFormat(const char* name) {
 				tt.tm_sec = ct.tm_sec; tt.tm_min = ct.tm_min; tt.tm_hour = ct.tm_hour;
 				tt.tm_mday = ct.tm_mday; tt.tm_mon = ct.tm_mon; tt.tm_year = ct.tm_year;
 				tt.tm_wday = ct.tm_wday; tt.tm_yday = ct.tm_yday; tt.tm_isdst = ct.tm_isdst;
-				strftime(outBuf + outIndex, outLeft, va("%%%c", ch), &tt);
-				outIndex += strlen(outBuf + outIndex);
+				strftime( outBuf + outIndex, outLeft, va( "%%%c", ch ), &tt );
+				outIndex += strlen( outBuf + outIndex );
 				break;
 			case 'D':		//date
 <<<<<<< HEAD
@@ -79,6 +87,13 @@ char *demoAutoFormat(const char* name) {
 				Com_sprintf( outBuf + outIndex, outLeft, playerName);
 				outIndex += strlen( outBuf + outIndex );
 				break;
+<<<<<<< HEAD
+=======
+			case 's':
+				Com_sprintf( outBuf + outIndex, outLeft, serverName );
+				outIndex += strlen( outBuf + outIndex );
+				break;
+>>>>>>> parent of 9ffa3a2... Fixed compiling and changed default format
 			case 't':		//timestamp
 				while (demo.record.timeStamps[t] && t < MAX_TIMESTAMPS) {
 					int min = demo.record.timeStamps[t] / 60000;
