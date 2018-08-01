@@ -334,8 +334,9 @@ typedef struct {
 	qhandle_t	recordingShader;
 	float		ratioFix;
 	qboolean	uiEditingField;
-	
-	colorTable_t	cTable;
+	struct {
+		qboolean		newColors;
+	} uag;
 
 	mmeState_t		mmeState;
 } clientStatic_t;
