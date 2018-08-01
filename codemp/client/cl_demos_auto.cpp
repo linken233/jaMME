@@ -21,6 +21,7 @@ char *demoAutoFormat(const char* name) {
 	qtime_t ct;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	char playerName[MAX_QPATH], *mapName = COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "mapname"));
 	Q_strncpyz(playerName, Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n"), sizeof(playerName));
 	Q_StripColor(playerName, cls.uag.newColors);
@@ -31,6 +32,11 @@ char *demoAutoFormat(const char* name) {
 	Q_StripColor(playerName, cls.uag.newColors);
 	Q_StripColor(serverName, COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "sv_hostname")));
 >>>>>>> parent of 9ffa3a2... Fixed compiling and changed default format
+=======
+	char playerName[MAX_QPATH], *mapName = COM_SkipPath(Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO]), "mapname"));
+	Q_strncpyz(playerName, Info_ValueForKey((cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS+cl.snap.ps.clientNum]), "n"), sizeof(playerName));
+	Q_StripColor(playerName, cls.uag.newColors);
+>>>>>>> parent of 148b81a... Added new demo tokens from strftime (reference: pre C-99 rows from http://cplusplus.com/reference/ctime/strftime/). Renamed some tokens that conflicted with the new ones: date -> D, map -> N, player name -> P (demo name and timestamp are untouched). Also added current server, token: s
 	Com_RealTime(&ct);
 	
 	format = cl_autoDemoFormat->string;
@@ -47,6 +53,7 @@ char *demoAutoFormat(const char* name) {
 			char ch = *format++;
 			haveTag = qfalse;
 			switch (ch) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -70,12 +77,15 @@ char *demoAutoFormat(const char* name) {
 >>>>>>> parent of b3ed3ba... Merge pull request #12 from Avygeil/demotokens
 =======
 >>>>>>> parent of eee1a36... Restored defaults for more important tokens (map, player name and date), and changed a few strftime tokens instead. Since the strftime reference is now wrong, I documented all new tokens for readme
+=======
+			case 'd':		//date
+>>>>>>> parent of 148b81a... Added new demo tokens from strftime (reference: pre C-99 rows from http://cplusplus.com/reference/ctime/strftime/). Renamed some tokens that conflicted with the new ones: date -> D, map -> N, player name -> P (demo name and timestamp are untouched). Also added current server, token: s
 				Com_sprintf( outBuf + outIndex, outLeft, "%d-%02d-%02d-%02d%02d%02d",
 								1900+ct.tm_year, ct.tm_mon+1,ct.tm_mday,
 								ct.tm_hour, ct.tm_min, ct.tm_sec);
 				outIndex += strlen( outBuf + outIndex );
 				break;
-			case 'N':		//map
+			case 'm':		//map
 				Com_sprintf( outBuf + outIndex, outLeft, mapName);
 				outIndex += strlen( outBuf + outIndex );
 				break;
@@ -83,10 +93,11 @@ char *demoAutoFormat(const char* name) {
 				Com_sprintf( outBuf + outIndex, outLeft, name);
 				outIndex += strlen( outBuf + outIndex );
 				break;
-			case 'P':		//current player name
+			case 'p':		//current player name
 				Com_sprintf( outBuf + outIndex, outLeft, playerName);
 				outIndex += strlen( outBuf + outIndex );
 				break;
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 			case 's':
@@ -94,6 +105,8 @@ char *demoAutoFormat(const char* name) {
 				outIndex += strlen( outBuf + outIndex );
 				break;
 >>>>>>> parent of 9ffa3a2... Fixed compiling and changed default format
+=======
+>>>>>>> parent of 148b81a... Added new demo tokens from strftime (reference: pre C-99 rows from http://cplusplus.com/reference/ctime/strftime/). Renamed some tokens that conflicted with the new ones: date -> D, map -> N, player name -> P (demo name and timestamp are untouched). Also added current server, token: s
 			case 't':		//timestamp
 				while (demo.record.timeStamps[t] && t < MAX_TIMESTAMPS) {
 					int min = demo.record.timeStamps[t] / 60000;
