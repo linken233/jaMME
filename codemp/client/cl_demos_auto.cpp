@@ -40,6 +40,9 @@ char *demoAutoFormat(const char* name) {
 			haveTag = qfalse;
 			switch (ch) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of eee1a36... Restored defaults for more important tokens (map, player name and date), and changed a few strftime tokens instead. Since the strftime reference is now wrong, I documented all new tokens for readme
 			// let strftime handle its tokens, and ignore those with illegal characters
 			case 'a':   case 'A':   case 'b':   case 'B': /*case 'c':*/ case 'd':
 			case 'H':   case 'I':   case 'm':   case 'M':   case 'p':   case 'S':
@@ -53,9 +56,12 @@ char *demoAutoFormat(const char* name) {
 				outIndex += strlen(outBuf + outIndex);
 				break;
 			case 'D':		//date
+<<<<<<< HEAD
 =======
 			case 'd':		//date
 >>>>>>> parent of b3ed3ba... Merge pull request #12 from Avygeil/demotokens
+=======
+>>>>>>> parent of eee1a36... Restored defaults for more important tokens (map, player name and date), and changed a few strftime tokens instead. Since the strftime reference is now wrong, I documented all new tokens for readme
 				Com_sprintf( outBuf + outIndex, outLeft, "%d-%02d-%02d-%02d%02d%02d",
 								1900+ct.tm_year, ct.tm_mon+1,ct.tm_mday,
 								ct.tm_hour, ct.tm_min, ct.tm_sec);
