@@ -1665,10 +1665,8 @@ static void R_MarkLeaves (void) {
 		}
 
 		// check for door connection
-		if (!r_drawAllAreas->integer) {
-			if ((tr.refdef.areamask[leaf->area >> 3] & (1 << (leaf->area & 7)))) {
-				continue;		// not visible
-			}
+		if ( (tr.refdef.areamask[leaf->area>>3] & (1<<(leaf->area&7)) ) ) {
+			continue;		// not visible
 		}
 
 		parent = leaf;
