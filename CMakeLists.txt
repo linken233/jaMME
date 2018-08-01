@@ -60,7 +60,7 @@ endif()
 message("Architecture is ${Architecture}")
 
 # Binary names
-set(jaMMEEngine "jamme")
+set(jaMMEEngine "jamme.${Architecture}")
 set(jaMMERenderer "rd-jamme_${Architecture}")
 set(jaMMEGame "jampgame${Architecture}")
 set(jaMMECGame "cgame${Architecture}")
